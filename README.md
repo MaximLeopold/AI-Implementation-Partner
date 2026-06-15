@@ -6,7 +6,7 @@ The framework is designed for applied AI implementation in business, strategy, f
 
 # Attribution
 
-Parts of this project are adapted from Matt Pocock’s public mattpocock/skills repository, which is licensed under the MIT License. In particular, this project builds on the skill-based workflow concept and adapts selected skills such as grill-me for AI implementation workflows.
+Parts of this project are adapted from Matt Pocock’s mattpocock/skills and Addy Osmani's AddyOsmani/agent-skills public repositories which are licensed under the MIT License. In particular, this project builds on the skill-based workflow concept and adapts selected skills such as grill-me for AI implementation workflows.
 
 This repository extends those ideas into an AI implementation partner framework focused on business use-case exploration, MVP planning, virtual data-room assistance, market intelligence, custom agent workflows, and project handoff.
 
@@ -18,6 +18,17 @@ in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions: 
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+Copyright (c) 2025 Addy Osmani
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
