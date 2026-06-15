@@ -1,0 +1,423 @@
+# Current Status
+
+Shared Understanding Complete
+
+Planning Not Started
+
+Implementation Not Started
+
+# Recommended Next Step
+
+Move into Planning Mode and create:
+
+- MVP architecture
+- Work packages
+- Acceptance criteria
+- Build sequence
+
+----------------------------------------------------------------------------
+
+# Virtual Data Room (VDR) Assistant — MVP Handoff Document
+
+## Overview
+
+The project is a retrieval-first Virtual Data Room assistant designed for internal M&A / diligence workflows.
+
+The assistant allows users to ask questions against uploaded VDR documents and receive:
+- grounded answers only
+- supporting excerpts
+- source document references
+- folder hierarchy metadata
+- page / slide / sheet references
+- direct document access links where possible
+
+The assistant is explicitly NOT intended to:
+- provide speculative reasoning
+- use general model knowledge
+- act as an autonomous diligence advisor
+- infer conclusions not explicitly supported by uploaded documents
+
+Core philosophy:
+- trustworthiness over creativity
+- evidence retrieval over synthesis
+- completeness and traceability over conversational fluency
+
+---
+
+# Users
+
+Initial users:
+- Internal 3-person deal team
+
+Out of scope for MVP:
+- external users
+- enterprise RBAC
+- fine-grained authorization
+- multi-tenant access control
+
+Security assumption:
+- all users are trusted internal users
+- all data remains entirely inside the OpenAI enterprise/developer ecosystem
+- no external AI/vector/search infrastructure permitted
+
+---
+
+# Deployment Model
+
+Frontend:
+- standalone web application
+- likely Streamlit or Vercel-based UI
+
+Backend:
+- OpenAI Developer Platform only
+
+No external:
+- vector databases
+- AI providers
+- retrieval providers
+- document indexing systems
+
+---
+
+# VDR Lifecycle
+
+## Upload Model
+
+- User uploads a ZIP file
+- ZIP contains full VDR folder hierarchy
+- VDR may contain nested folders/subfolders
+- Uploaded ZIP represents a complete snapshot
+
+## Replacement Behavior
+
+Each ZIP upload:
+- completely replaces the prior indexed VDR
+- clears prior retrieval state
+- activates a fresh searchable dataset
+
+No accumulation of old files.
+
+---
+
+# Supported File Types
+
+Primary supported types:
+- PDF
+- DOCX
+- PPTX
+- XLSX
+
+Other file types may exist in the ZIP.
+
+Behavior for unsupported files:
+- skip gracefully
+- never break ingestion
+- report unsupported files transparently
+
+---
+
+# Ingestion Requirements
+
+## Required Behaviors
+
+The ingestion pipeline must:
+- unpack ZIP files
+- preserve full folder hierarchy
+- parse supported document types
+- extract searchable content
+- extract tables where reasonably possible
+- preserve metadata
+- generate ingestion report
+
+## Graceful Degradation
+
+The ingestion system must:
+- continue processing when individual files fail
+- skip corrupted/unreadable documents
+- never fail entire ingestion because of one bad file
+
+## Ingestion Reporting
+
+Example report:
+
+Indexed:
+- 1,284 files
+
+Skipped:
+- 14 unsupported file types
+- 3 corrupted PDFs
+- 2 password-protected XLSX files
+
+---
+
+# Retrieval Philosophy
+
+The system is retrieval-first.
+
+Primary goals:
+- precise evidence lookup
+- document discovery
+- trustworthy citations
+- transparent sourcing
+
+The assistant should behave more like:
+- a diligence evidence retrieval engine
+
+Not:
+- an AI deal advisor
+- an analyst replacement
+
+---
+
+# Answering Rules
+
+## Strict Grounding
+
+The assistant may ONLY answer using uploaded VDR content.
+
+If information is not found:
+
+Preferred response:
+
+“The requested information could not be identified in the uploaded VDR documents.”
+
+The assistant must NEVER:
+- answer from model pretraining
+- use external knowledge
+- fabricate conclusions
+- speculate
+- infer unsupported business conclusions
+
+---
+
+# Supported Query Types
+
+## High Priority
+
+Precise factual retrieval:
+- “What is the EBITDA margin for FY2024?”
+- “What is the notice period in the HQ lease?”
+- “Which documents mention change-of-control clauses?”
+
+Document discovery:
+- “Show all documents related to cybersecurity.”
+- “Find contracts mentioning assignment clauses.”
+- “Which files reference SAP migration?”
+
+## Allowed Broader Questions
+
+Broader questions are acceptable ONLY when answers can be explicitly grounded.
+
+Example:
+
+“What are the key revenue growth drivers in the business plan?”
+
+Acceptable behavior:
+- extract explicitly stated drivers from documents
+- cite exact supporting evidence
+
+Unacceptable behavior:
+- infer drivers not stated in documents
+- generate analytical opinions
+
+---
+
+# Conflict Handling
+
+The assistant must NEVER resolve conflicting information automatically.
+
+Instead:
+- present all materially relevant findings
+- cite all sources
+- allow users to interpret discrepancies
+
+Example:
+
+Different values were identified:
+
+- €120m — /Financial Model/Base Case.xlsx
+- €128m — /Management Q&A/Commercial Responses.docx
+- €135m — /Board Presentation/2025 Outlook.pptx
+
+---
+
+# Conversational Memory
+
+Support lightweight session memory only.
+
+Allowed:
+- follow-up references like “them” or “those contracts”
+
+Requirement:
+- every answer must still independently retrieve supporting evidence
+
+The system must never rely solely on conversational memory for factual claims.
+
+---
+
+# Retrieval Scope
+
+Default behavior:
+- search entire VDR
+
+Optional filters:
+- Legal
+- Financials
+- Tax
+- HR
+- Commercial
+- IT
+- ESG
+
+Potential future behavior:
+- subtree/folder-scoped search
+
+---
+
+# Folder Hierarchy
+
+The original VDR hierarchy is critical metadata.
+
+Requirements:
+- preserve full folder paths
+- expose folder paths in answers
+- use folder metadata in retrieval
+
+Example:
+
+/05 Commercial/Customers/Top Accounts/Customer Concentration Analysis.xlsx
+
+---
+
+# Citation Precision Requirements
+
+## PDF
+- page number
+- supporting excerpt
+
+## DOCX
+- section reference
+- supporting excerpt
+
+## PPTX
+- slide number/reference
+- supporting excerpt
+
+## XLSX
+- sheet name
+- nearby table/snippet
+- preserve row/column context where possible
+
+---
+
+# Table Handling
+
+The system should:
+- extract searchable table content
+- preserve nearby textual context
+- retain row/column meaning where possible
+
+The system should NOT:
+- perform advanced spreadsheet reasoning
+- perform financial modeling
+- infer formulas/business logic
+
+---
+
+# Response Format
+
+The assistant should use a rigid structured response format.
+
+Example:
+
+## Answer
+“The Berlin HQ lease has a 12-month notice period.”
+
+## Sources
+/Legal/Lease Agreements/Berlin HQ Lease.pdf
+Page 47
+
+## Excerpt
+“Either party may terminate this agreement with twelve (12) months prior written notice.”
+
+## Conflicting Information
+None identified.
+
+---
+
+# Performance Priorities
+
+Priority order:
+1. Retrieval accuracy
+2. Citation quality
+3. Completeness
+4. Response speed
+
+Acceptable response latency:
+- ~5–15 seconds
+
+---
+
+# Scale Assumptions
+
+Initial target scale:
+- up to approximately 3–5 GB ZIP uploads
+
+Expected environment:
+- realistic M&A diligence VDR snapshots
+- mixed file structures
+- nested folders
+
+---
+
+# OpenAI Platform Constraints
+
+Requirements:
+- all data must remain inside OpenAI ecosystem
+- OpenAI Developer Platform approved internally
+- file uploads permitted
+- enterprise usage approved
+
+No external infrastructure allowed.
+
+---
+
+# Non-Goals for MVP
+
+Out of scope:
+- advanced analytics
+- autonomous reasoning
+- investment recommendations
+- multi-workspace support
+- enterprise governance
+- RBAC
+- audit logging
+- retention management
+- workflow automation
+- real-time VDR synchronization
+- advanced OCR optimization
+- financial model interpretation
+
+---
+
+# Key Product Principle
+
+The assistant should feel like:
+- a trustworthy diligence evidence retrieval system
+
+NOT:
+- a generic chatbot
+- an AI analyst
+- an autonomous deal assistant
+
+Trust, traceability, and evidence transparency are the core product values.
+
+----------------------------------------------------------------------------
+
+# Do Not Revisit
+
+- The solution will use OpenAI Developer Platform
+- The assistant is retrieval-first
+- The assistant must only answer from VDR documents
+- Source citations are mandatory
+- External vector databases are out of scope for MVP
